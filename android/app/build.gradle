@@ -73,6 +73,16 @@ def enableProguardInReleaseBuilds = false
 def jscFlavor = 'org.webkit:android-jsc:+'
 
 android {
+    project.ext.vectoricons = [
+        iconFontNames: [
+            "MaterialIcons.ttf",
+            "FontAwesome.ttf",
+            "Ionicons.ttf",
+            "AntDesign.ttf"
+        ] // Add the icon fonts you are using
+    ]
+
+
     ndkVersion rootProject.ext.ndkVersion
     buildToolsVersion rootProject.ext.buildToolsVersion
     compileSdk rootProject.ext.compileSdkVersion
@@ -117,3 +127,5 @@ dependencies {
         implementation jscFlavor
     }
 }
+    apply from: "../../node_modules/react-native-vector-icons/fonts.gradle"
+

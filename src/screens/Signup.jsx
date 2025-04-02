@@ -193,7 +193,7 @@ const Signup = () => {
               <Text style={tw`text-gray-100`}>already have an account??</Text>
               <Text
                 style={tw`text-white font-bold`}
-                onPress={() => navigation.navigate('Signin')}>
+                onPress={() => navigation.goBack()}>
                 Login
               </Text>
             </View>

@@ -67,7 +67,7 @@ const Home = () => {
             keyExtractor={item => item.id}
             renderItem={({item}) => (
               <TouchableOpacity
-              onPress={()=> console.log(item)}
+              onPress={()=> navigation.navigate('singleChat', {item})}
                 style={tw`flex flex-row items-center justify-between p-4 border-b border-red-800 mx-1 rounded-lg`}>
                 <View style={tw`flex flex-row items-center`}>
                   <Image source={{uri:item.profile_pic}} style={tw`bg-gray-200 rounded-full w-12 h-12 mr-4

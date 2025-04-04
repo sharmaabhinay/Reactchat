@@ -3,6 +3,8 @@ import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 import Home from '../screens/Home';
 import Profile from '../screens/profile/Profile';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import HomeStack from './homeStack/HomeStack';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 
 const Tab = createBottomTabNavigator();
 
@@ -19,8 +21,9 @@ const BottomTabNavigator = () => {
       })}>
       <Tab.Screen
         name="Chats"
-        component={Home}
+        component={HomeStack}
         options={{
+          
           headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon name="home" color={color} size={size || 24} /> // Increased size
@@ -32,15 +35,21 @@ const BottomTabNavigator = () => {
       <Tab.Screen
         name="Profile"
         component={Profile}
-        options={{
+        options={({route}) => ({
+          headerShown: false,
           tabBarIcon: ({color, size}) => (
             <Icon name="person" color={color} size={size || 24} /> // Increased size
           ),
-        }}
+          tabBarStyle: {display: hideBar(route)},
+        })}
       />
       {/* <Tab.Screen name="Settings" component={SettingsScreen} /> */}
     </Tab.Navigator>
   );
 };
+const hideBar = (route)=> {
+  const routeName = getFocusedRouteNameFromRoute(route)
+  console.log(routeName)
+}
 
 export default BottomTabNavigator;

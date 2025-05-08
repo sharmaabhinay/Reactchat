@@ -4,7 +4,9 @@ import { View, Text, TouchableOpacity, Image } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import tw from 'twrnc';
 
-const VoiceCallScreen = () => {
+const VoiceCallScreen = ({route}) => {
+    console.log(route);
+    const params = route.params;
     const navigation = useNavigation();
     const [isOnSpeaker,setIsOnSpreaker] = useState(false);
     const [isMuted,setIsMuted] = useState(false);
@@ -13,10 +15,10 @@ const VoiceCallScreen = () => {
             {/* Profile Picture */}
             <View style={tw`items-center mb-10`}>
                 <Image
-                    source={{ uri: 'https://th.bing.com/th/id/OIP.4IHeOH-UPUURZbTydjezKgHaHa?pid=ImgDet&w=203&h=203&c=7&dpr=1.3' }}
+                    source={{ uri: params.userData.profile_pic || 'https://th.bing.com/th/id/OIP.4IHeOH-UPUURZbTydjezKgHaHa?pid=ImgDet&w=203&h=203&c=7&dpr=1.3' }}
                     style={tw`w-32 h-32 rounded-full mb-4`}
                 />
-                <Text style={tw`text-white text-xl font-bold`}>John Doe</Text>
+                <Text style={tw`text-white text-xl font-bold`}>{ params.userData?.name || "John Doe"}</Text>
                 <Text style={tw`text-gray-400 text-sm`}>Calling...</Text>
             </View>
 

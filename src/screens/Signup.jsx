@@ -10,14 +10,18 @@ import {
   StatusBar,
   ImageBackground,
   TouchableOpacity,
+  Image,
   ActivityIndicator,
   Modal,
-  Pressable
+  Pressable,
 } from 'react-native';
 // import Icon from 'react-native-vector-icons/FontAwesome';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
-
+import signupPng from '../assets/images/signup.png';
+import BackendUrl from '../components/BackendUrl';
+import { set_state } from '../redux/user/userData/action';
+import { useDispatch } from 'react-redux';
 const Signup = () => {
   let bgcolor2 =
     'https://w0.peakpx.com/wallpaper/340/856/HD-wallpaper-purple-purple-theme.jpg';
@@ -28,40 +32,48 @@ const Signup = () => {
   let [phoneErr, setPhoneErr] = useState('');
   let [passErr, setPassErr] = useState('');
   const [passVisibility, setPassVisibility] = useState(false);
-  const [fetching,setFetching] = useState(false);
+  const [fetching, setFetching] = useState(false);
   let [cnfPassword, setCnfPassword] = useState('');
   let [cnfPassErr, setCnfPassErr] = useState('');
+  const dispatch = useDispatch()
   let [valid, setValid] = useState({phone: false, pass: false, cnfPass: false});
 
   const handleOnContinue = async () => {
-    if(phone.length < 3 || password.length < 3 || cnfPassword.length < 3 || passErr.length > 0 || phoneErr.length > 0 || cnfPassErr.length > 0){
-      // return;
-      navigation.navigate('CreateProfile')
-
-    }else{
-      navigation.navigate('CreateProfile')
-      // console.log("phone : ",phone , "password : ",password);
-      // setFetching(true);
-      // let register = await axios.post('https://me-chat-cazt.onrender.com/signup',{
-      //   phone:phone,
-      //   password:password
-      // })
-      // if(register.data){
-      //   setFetching(false);
-      //   if(register.data.data.message == 'already registered'){
-      //     setPhoneErr('already registered');
-      //   }else if(register.data.data.message == 'user created'){
-      //     // setPhoneErr('user created');
-      //     navigation.navigate('CreateProfile');
-
-      //   }else{
-      //     setPhoneErr('something went wrong');
-      //   }
-      // }else{
-      //   alert('something went wrong');
-      // }
-      // console.log(register.data);
-   
+    if (
+      phone.length < 3 ||
+      password.length < 3 ||
+      cnfPassword.length < 3 ||
+      passErr.length > 0 ||
+      phoneErr.length > 0 ||
+      cnfPassErr.length > 0
+    ) {
+      return;
+    } else {
+      try {
+        setFetching(true);
+        let response = await axios.post(`${BackendUrl}/signup`, {
+          phone: phone,
+          password: password,
+        });
+        setFetching(false);
+        if (response.status === 201) {
+          dispatch(set_state({user:response.data.data}));
+          navigation.navigate('CreateProfile');
+        }
+      } catch (error) {
+        setFetching(false);
+        if (error.response) {
+          console.log('error response : ', error.response);
+          if (error.response.status === 409) {
+            setPhoneErr(error.response.data);
+          } else {
+            setPhoneErr('something went wrong');
+            
+          }
+        }else{
+          console.log(error);
+        }
+      }
     }
   };
 
@@ -97,18 +109,24 @@ const Signup = () => {
 
   return (
     <ImageBackground source={{uri: bgcolor2}} style={tw`h-full`}>
-      <Modal transparent visible={fetching} animationType="fade"/>
+      <Modal transparent visible={fetching} animationType="fade" />
       {/* <ActivityIndicator size="large" color="#00ff00" /> */}
       <StatusBar translucent={true} backgroundColor="transparent" />
-      <View style={[tw`h-full`]}>
+      <View style={[tw`h-full bg-gray-800`]}>
         <View style={tw`w-[90%] rounded-lg m-auto p-5`}>
-          <Text
+          {/* <Text
             style={[
               tw`text-center font-bold text-[#FFDFEF] text-xl mb-3`,
               {fontFamily: 'CedarvilleCursive-Regular'},
             ]}>
             Signup
-          </Text>
+          </Text> */}
+          <Image
+            source={signupPng}
+            style={tw`h-10 w-20 mx-auto mb-8`}
+            resizeMode="contain"
+          />
+
           <View style={tw`flex gap-2`}>
             <TextInput
               placeholder="phone"
@@ -117,14 +135,16 @@ const Signup = () => {
               selectTextOnFocus
               keyboardType="number-pad"
               placeholderTextColor={'#fff'}
-              style={tw`border-b rounded-md py-2 ${phoneErr ? 'border-yellow-200' : 'border-white'} text-white text-lg px-7`}></TextInput>
+              style={tw`border-b rounded-md py-2 ${
+                phoneErr ? 'border-yellow-200' : 'border-white'
+              } text-white text-lg px-7`}></TextInput>
             {/* </View> */}
             <View>
-                  {
-                    phoneErr.length > 2 ? (<Text style={tw`px-6 text-yellow-200`}>{phoneErr}</Text>) : null
-                  }
-                </View>
-                <View>
+              {phoneErr ? (
+                <Text style={tw`px-6 text-yellow-200`}>{phoneErr}</Text>
+              ) : null}
+            </View>
+            <View>
               <View style={tw`relative`}>
                 <TextInput
                   placeholder="Password"
@@ -133,7 +153,9 @@ const Signup = () => {
                   secureTextEntry={!passVisibility}
                   selectTextOnFocus
                   placeholderTextColor={'#fff'}
-                  style={tw`border-b rounded-md py-2 ${passErr ? 'border-yellow-200' : 'border-white'} px-7 text-white text-lg`}></TextInput>
+                  style={tw`border-b rounded-md py-2 ${
+                    passErr ? 'border-yellow-200' : 'border-white'
+                  } px-7 text-white text-lg`}></TextInput>
                 <Pressable
                   style={tw`absolute right-5 top-4  w-6`}
                   onPress={() => setPassVisibility(!passVisibility)}>
@@ -147,7 +169,7 @@ const Signup = () => {
               <View>
                 {passErr.length > 0 ? (
                   <Text style={tw`px-6 text-yellow-200`}>{passErr}</Text>
-                ) : (null)}
+                ) : null}
               </View>
             </View>
             <View>
@@ -158,17 +180,18 @@ const Signup = () => {
                 secureTextEntry
                 selectTextOnFocus
                 placeholderTextColor={'#fff'}
-                style={tw`border-b rounded-md py-2 px-7 ${cnfPassErr ? 'border-yellow-200' : 'border-white'} text-white text-lg`}></TextInput>
+                style={tw`border-b rounded-md py-2 px-7 ${
+                  cnfPassErr ? 'border-yellow-200' : 'border-white'
+                } text-white text-lg`}></TextInput>
               <View>
-                  {
-                    cnfPassErr.length > 2 ? (<Text style={tw`px-6 text-yellow-200`}>{cnfPassErr}</Text>) : null
-                  }
-                </View>
+                {cnfPassErr.length > 2 ? (
+                  <Text style={tw`px-6 text-yellow-200`}>{cnfPassErr}</Text>
+                ) : null}
+              </View>
             </View>
             <Pressable onPress={handleOnContinue}>
               {fetching ? (
                 <View style={tw`bg-orange-900 p-2 rounded-full`}>
-                  
                   <ActivityIndicator size={25} color="white" />
                 </View>
               ) : (
@@ -182,7 +205,7 @@ const Signup = () => {
                     cnfPassword.length < 3
                       ? 'bg-yellow-800'
                       : 'bg-orange-700'
-                  }  rounded-full p-2 text-white font-medium text-xl text-center`}>
+                  }  rounded-full p-2 text-white font-medium text-lg text-center mt-5`}>
                   continue
                 </Text>
               )}

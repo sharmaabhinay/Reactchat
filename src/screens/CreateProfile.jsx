@@ -11,9 +11,15 @@ import React, {useState} from 'react';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { useNavigation } from '@react-navigation/native';
+import axios from 'axios';
+import BackendUrl from '../components/BackendUrl';
+import { useDispatch, useSelector } from 'react-redux';
+import { set_state, user_auth } from '../redux/user/userData/action';
 let bgcolor2 =
 'https://w0.peakpx.com/wallpaper/340/856/HD-wallpaper-purple-purple-theme.jpg';
 const CreateProfile = () => {
+  const userData = useSelector((state) => state.userDetail);
+  const dispatch = useDispatch();
     let navigation = useNavigation();
   const [name, setName] = useState('');
   const [valid,setValid] = useState(false);
@@ -63,17 +69,36 @@ const CreateProfile = () => {
       setNameErr('');
     }
   };
-  const handleOnContinue = () => {
+  const handleOnContinue = async () => {
     if(!name || name.length < 3 || nameErr.length > 0){
       return;
     }else{
-        navigation.navigate('Home');
+        try {
+
+          let response = await axios.post(`${BackendUrl}/user-profile`, {
+            userData:{ id: userData.id,
+            name: name,
+            email: email,
+            profile_pic: profilePic,
+            about:'nothing'}
+          })
+          if (response.status === 200) {
+            dispatch(set_state({user:response.data.user}))
+            dispatch(user_auth(true))
+          }
+        } catch (error) {
+          if (error.response) {
+            console.log('error response : ', error.response);
+          }else{
+            console.log(error);
+          }
+        }
     }
   }
   const [profilePic, setProfilePic] = useState(pics[0].uri);
   return (
     <ImageBackground source={{uri: bgcolor2}} style={tw`flex-1`}>
-    <View style={tw`flex-1 `}>
+    <View style={tw`flex-1 bg-gray-800`}>
       <View style={tw` w-[90%] flex m-auto rounded-lg p-5 gap-3 `}>
         <View style={tw`relative`}>
           <Image

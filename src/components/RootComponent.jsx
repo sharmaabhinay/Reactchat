@@ -11,6 +11,8 @@ import ConnectedContact from '../screens/home/ConnectedContact';
 import { TransitionPresets } from '@react-navigation/bottom-tabs';
 import { useDispatch, useSelector } from 'react-redux';
 import { set_state } from '../redux/user/userData/action';
+import BackendUrl from './BackendUrl';
+import axios from 'axios';
 
 const RootComponent = () => {
   const Stack = createNativeStackNavigator();
@@ -19,20 +21,44 @@ const RootComponent = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(null); // null = loading, false = not authenticated, true = authenticated
 
   // Check for auth token in AsyncStorage
+const getUser = async (token)=> {
+  // console.log('token : ', token);
+        try{
+          let response = await axios.post(`${BackendUrl}/auth`, {userId: token })
+          if(response.status === 200){
+            console.log('user data : ', response.data);
+            dispatch(set_state({user:response.data, message:'from home'}))
+          }
+        }catch(error){
+          console.log('error : ', error);
+        }
+      }
+  useEffect(()=> {
+    if(!isAuthenticated){
+      return;
+    }else{
+      console.log('user id : ', Auth);
+      
+      // getUser();
+    }
+  },[isAuthenticated])
+
   useEffect(() => {
     const checkAuthToken = async () => {
       try {
         const token = await AsyncStorage.getItem('token');
-        setIsAuthenticated(!!token);
-        console.log(token) 
-        // dispatch(set_state({user:{_id:token}, message:'from root'}))
-        // Set true if token exists, false otherwise
+        console.log("Retrieved token:", token);
+        if (token && token.trim().length > 0) { // token exists
+          await getUser(token);
+          setIsAuthenticated(true);
+        } else {
+          setIsAuthenticated(false);
+        }
       } catch (error) {
         console.error('Error checking auth token:', error);
         setIsAuthenticated(false);
       }
     };
-
     checkAuthToken();
   }, [Auth.isLoggedIn]);
 

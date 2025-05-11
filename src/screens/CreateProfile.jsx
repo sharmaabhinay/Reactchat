@@ -15,6 +15,7 @@ import axios from 'axios';
 import BackendUrl from '../components/BackendUrl';
 import { useDispatch, useSelector } from 'react-redux';
 import { set_state, user_auth } from '../redux/user/userData/action';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 let bgcolor2 =
 'https://w0.peakpx.com/wallpaper/340/856/HD-wallpaper-purple-purple-theme.jpg';
 const CreateProfile = () => {
@@ -84,7 +85,9 @@ const CreateProfile = () => {
           })
           if (response.status === 200) {
             dispatch(set_state({user:response.data.user}))
+            AsyncStorage.setItem('token', userData.id)
             dispatch(user_auth(true))
+            // navigation.navigate('Home')
           }
         } catch (error) {
           if (error.response) {

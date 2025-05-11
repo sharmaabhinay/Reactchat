@@ -6,16 +6,18 @@ import axios from 'axios';
 import BackendUrl from '../../../components/BackendUrl';
 import { useDispatch, useSelector } from 'react-redux';
 import { refreshContacts } from '../../../redux/user/userData/action';
+import { useNavigation, CommonActions } from '@react-navigation/native';
 // import { TouchableOpacity } from 'react-native-gesture-handler';
 
-const FriendDetails = ({ route, navigation }) => {
+const FriendDetails = ({ route }) => {
     let dispatch = useDispatch();
+    let navigation = useNavigation()
     let user = useSelector(state => state.userDetail);
     let userId = user.id;
     const getcontacts =async  ()=> {
         try {
           let response = await axios.post(`${BackendUrl}/get-contacts`, {
-            userId: cliendId
+            userId: userId
           })
           if (response.status === 200) {
             dispatch(refreshContacts(response.data.contacts));
@@ -32,10 +34,14 @@ const FriendDetails = ({ route, navigation }) => {
                 friendId: route?.params?.userData?._id
             })
             if(response.status === 200) {
-                getcontacts()
+                // getcontacts()
                 alert('Contact Deleted Successfully')
-                navigation.navigate('Home')
-                alert('Contact Deleted Successfully')
+                navigation.getParent().dispatch(
+                    CommonActions.reset({
+                      index: 0,
+                      routes: [{ name: 'HomeChats' }],
+                    })
+                  );
             }
 
         }catch(error){

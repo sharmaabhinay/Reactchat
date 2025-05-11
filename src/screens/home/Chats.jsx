@@ -272,7 +272,6 @@ const Chats = ({route}) => {
   };
   useEffect(() => {
     fetchMessages();
-    console.log('userData : ', route.params?.userData);
   }, []);
   useEffect(() => {
     if (flatListRef.current && messages.length > 0) {
@@ -286,7 +285,6 @@ const Chats = ({route}) => {
           userId: cliendId
         })
         if (response.status === 200) {
-          console.log('user data : ', response.data);
           dispatch(refreshContacts(response.data.contacts));
         }
       } catch (error) {
@@ -343,7 +341,7 @@ const Chats = ({route}) => {
               <Text style={tw`text-white font-bold text-lg`}>
                 {route.params?.userData?.name || 'Dummy'}
               </Text>
-              <Text style={tw`${typingStatus === 'online' ? 'text-green-500':'text-white'} text-xs -mt-1 `}>
+              <Text style={tw`${typingStatus === 'online' ? 'text-green-500':'text-white'} text-xs -mt-1`}>
                 {typingStatus}
               </Text>
             </View>
@@ -396,6 +394,8 @@ const Chats = ({route}) => {
             <Icon name="attach-file" size={20} color="white" style={tw``} />
           </TouchableOpacity>
           <TextInput
+            autoFocus
+            
             placeholder="Type a message"
             onChangeText={setTextValue}
             value={textValue}

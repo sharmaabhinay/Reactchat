@@ -151,6 +151,8 @@ const Home = () => {
     } else {
       content = (
         <FlatList
+        onRefresh={() => fetchContacts()}
+        refreshing={loadingContacts}
           data={result?.fetchContacts}
           keyExtractor={item => item?._id}
           renderItem={({item}) => (

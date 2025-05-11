@@ -1,6 +1,6 @@
 import React from 'react';
 import {View, Text, Image, TouchableOpacity, ScrollView} from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import tw from 'twrnc';
 import { user_auth } from '../../redux/user/userData/action';
 import { useNavigation } from '@react-navigation/native';
@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 // import {BlurView} from '@react-native-community/blur';
 
 const Profile = () => {
+  const user = useSelector(state => state.userDetail);
     let dispatch = useDispatch()
     let navigation = useNavigation();
   const handleOnLogout = () => {
@@ -29,8 +30,8 @@ const Profile = () => {
           source={{uri: 'https://via.placeholder.com/150'}}
           style={tw`w-32 h-32 rounded-full`}
         />
-        <Text style={tw`text-xl font-bold mt-4`}>John Doe</Text>
-        <Text style={tw`text-gray-500`}>johndoe@example.com</Text>
+        <Text style={tw`text-xl font-bold mt-4`}>{user?.name || 'John Doe'}</Text>
+        <Text style={tw`text-gray-500`}>{user.email || 'not shared'}</Text>
       </View>
 
       <View style={tw`px-6`}>

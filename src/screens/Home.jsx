@@ -245,7 +245,7 @@ const Home = () => {
           name="person-add"
           size={30}
           color="white"
-          style={tw`rounded-full p-2 bg-purple-900`}
+          style={tw`rounded-full p-2 bg-orange-800`}
         />
       </TouchableOpacity>
     </SafeAreaView>

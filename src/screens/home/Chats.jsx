@@ -9,6 +9,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
+  ActivityIndicator,
 } from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -17,7 +18,7 @@ import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import BackendUrl from '../../components/BackendUrl';
-import { refreshContacts } from '../../redux/user/userData/action';
+import {refreshContacts} from '../../redux/user/userData/action';
 
 const Chats = ({route}) => {
   let dispatch = useDispatch();
@@ -279,22 +280,21 @@ const Chats = ({route}) => {
     }
   }, [messages]);
 
-  const getcontacts =async  ()=> {
-      try {
-        let response = await axios.post(`${BackendUrl}/get-contacts`, {
-          userId: cliendId
-        })
-        if (response.status === 200) {
-          dispatch(refreshContacts(response.data.contacts));
-        }
-      } catch (error) {
-        console.log('error : ', error);
-        
+  const getcontacts = async () => {
+    console.log('get contacts called');
+    try {
+      let response = await axios.post(`${BackendUrl}/get-contacts`, {
+        userId: cliendId,
+      });
+      if (response.status === 200) {
+        dispatch(refreshContacts(response.data.contacts));
       }
+    } catch (error) {
+      console.log('error : ', error);
     }
+  };
 
   const handleOnSend = () => {
-
     if (socket) {
       setTextValue('');
       setMessages(prevMessages => [
@@ -311,11 +311,6 @@ const Chats = ({route}) => {
         content: textValue,
       });
       getcontacts();
-      console.log({
-        senderId: userData.id,
-        receiverId: route.params?.userData._id,
-        content: textValue,
-      });
     }
   };
 
@@ -341,7 +336,10 @@ const Chats = ({route}) => {
               <Text style={tw`text-white font-bold text-lg`}>
                 {route.params?.userData?.name || 'Dummy'}
               </Text>
-              <Text style={tw`${typingStatus === 'online' ? 'text-green-500':'text-white'} text-xs -mt-1`}>
+              <Text
+                style={tw`${
+                  typingStatus === 'online' ? 'text-green-500' : 'text-white'
+                } text-xs -mt-1`}>
                 {typingStatus}
               </Text>
             </View>
@@ -368,24 +366,39 @@ const Chats = ({route}) => {
         </View>
 
         {/* Chat + Input */}
-
-        <FlatList
-          ref={flatListRef}
-          data={messages}
-          keyExtractor={item => item._id}
-          contentContainerStyle={tw`p-2 pb-20`}
-          renderItem={({item}) => (
-            <View
-              style={tw`mb-2 p-2  max-w-[80%] ${
-                item.sender === userData.id
-                  ? 'bg-blue-500 self-end rounded-bl-lg rounded-t-lg'
-                  : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
-              }`}>
-              <Text style={tw`text-white`}>{item.content}</Text>
-              {/* <Text>{item.timeStamp.}</Text> */}
+        {loading ? (
+          <View style={tw`flex-1 p-2`}>
+            <View style={tw`flex-1 justify-center items-center`}>
+              <ActivityIndicator size={40} color="orange" />
+              <Text style={tw`text-white text-lg font-bold`}>
+                Getting Messages...
+              </Text>
             </View>
-          )}
-        />
+          </View>
+        ) : (
+          <FlatList
+            ref={flatListRef}
+            data={messages}
+            ListEmptyComponent={
+              <Text style={tw`text-white text-lg text-center`}>
+                No messages yet
+              </Text>
+            }
+            keyExtractor={item => item._id}
+            contentContainerStyle={tw`p-2 pb-20`}
+            renderItem={({item}) => (
+              <View
+                style={tw`mb-2 p-2  max-w-[80%] ${
+                  item.sender === userData.id
+                    ? 'bg-blue-500 self-end rounded-bl-lg rounded-t-lg'
+                    : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
+                }`}>
+                <Text style={tw`text-white`}>{item.content}</Text>
+                {/* <Text>{item.timeStamp.}</Text> */}
+              </View>
+            )}
+          />
+        )}
 
         {/* Bottom input bar */}
         <View
@@ -395,12 +408,11 @@ const Chats = ({route}) => {
           </TouchableOpacity>
           <TextInput
             autoFocus
-            
             placeholder="Type a message"
             onChangeText={setTextValue}
             value={textValue}
             placeholderTextColor={'#ccc'}
-            style={tw`flex-1 bg-gray-800 text-white px-4 py-3 rounded-full border-2 border-white`}
+            style={tw`flex-1 max-h-12 bg-gray-800 text-white px-4 py-3 rounded-full border-2 border-white`}
           />
           <TouchableOpacity
             onPress={handleOnSend}

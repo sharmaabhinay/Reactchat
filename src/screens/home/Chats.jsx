@@ -10,6 +10,7 @@ import {
   Platform,
   Pressable,
   ActivityIndicator,
+  Keyboard,
 } from 'react-native';
 import tw from 'twrnc';
 import Icon from 'react-native-vector-icons/MaterialIcons';
@@ -19,13 +20,16 @@ import axios from 'axios';
 import {useDispatch, useSelector} from 'react-redux';
 import BackendUrl from '../../components/BackendUrl';
 import {refreshContacts} from '../../redux/user/userData/action';
+// import Sound from 'react-native-sound';
 
 const Chats = ({route}) => {
+  // Sound.setCategory('Playback', true);
   let dispatch = useDispatch();
   const typingSession = useRef(null);
   const userData = useSelector(state => state.userDetail);
   const cliendId = userData.id;
   const navigation = useNavigation();
+  // const notification = require('../../assets/audio/notification.mp3');
   // console.log(route.params?.socket);
 
   const messagesArr = [
@@ -191,17 +195,41 @@ const Chats = ({route}) => {
     },
   ];
   const [textValue, setTextValue] = useState('');
-  const [typingStatus, setTypingStatus] = useState('offline');
+  const [typingStatus, setTypingStatus] = useState('');
   const [messages, setMessages] = useState(messagesArr);
   const [loading, setLoading] = useState(false);
+  const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
   let socket = route.params?.socket;
+
+
+  // play sound on new message
+  // const playSound = ()=> {
+  //   const sound = new Sound("notification", Sound.MAIN_BUNDLE , (error) => {
+  //     if (error) {
+  //       console.log('Failed to load sound', error);
+  //     } else {
+  //       sound.play(success => {
+  //         if (success) {
+  //           console.log('Sound played successfully');
+  //         } else {
+  //           console.log('Sound playback failed');
+  //         }
+  //       });
+  //     }
+  //   })
+  // }
+  // useEffect(() => {
+  //   playSound();
+  // }, []);
+
+  //receiving messages from socket
   useEffect(() => {
     if (socket) {
       const handleNewMessage = message => {
         console.log('New message:', message);
-        setMessages(prevMessages => [...prevMessages, message]);
+        setMessages(prevMessages => [ message,...prevMessages]);
       };
 
       // Register the 'new-message' listener
@@ -213,8 +241,14 @@ const Chats = ({route}) => {
       };
     }
   }, [socket]);
+  
   useEffect(() => {
     if (socket) {
+      socket.on('leave', data => {
+        if(data.userId === route.params?.userId?._id){
+          setTypingStatus('offline');
+        }
+      });
       socket.on('frnd-typing', data => {
         console.log('typing data : ', data);
         if (data.isTyping) {
@@ -258,7 +292,7 @@ const Chats = ({route}) => {
       setLoading(false);
       if (response.status === 200 && response.data) {
         console.log('Messages fetched successfully:', response.data);
-        setMessages(response.data);
+        setMessages(response.data.reverse());
       } else {
         console.log('No messages found');
         setMessages([]);
@@ -272,13 +306,14 @@ const Chats = ({route}) => {
     }
   };
   useEffect(() => {
+    setTypingStatus(route.params?.userData?.isOnline ? 'online' : 'offline');
     fetchMessages();
   }, []);
-  useEffect(() => {
-    if (flatListRef.current && messages.length > 0) {
-      flatListRef.current.scrollToEnd({animated: true});
-    }
-  }, [messages]);
+  // useEffect(() => {
+  //   if (flatListRef.current && messages.length > 0) {
+  //     flatListRef.current.scrollToEnd({animated: true});
+  //   }
+  // }, [messages, isKeyboardVisible]);
 
   const getcontacts = async () => {
     console.log('get contacts called');
@@ -298,12 +333,14 @@ const Chats = ({route}) => {
     if (socket) {
       setTextValue('');
       setMessages(prevMessages => [
-        ...prevMessages,
+        
         {
           sender: userData.id,
           receiver: route.params?.userData._id,
           content: textValue,
-        },
+          timeStamp: new Date().toISOString(),
+          _id: Math.random().toString(36).substring(7), // Generate a random ID for the message
+        },...prevMessages
       ]);
       socket.emit('client-message', {
         senderId: userData.id,
@@ -313,6 +350,23 @@ const Chats = ({route}) => {
       getcontacts();
     }
   };
+
+  useEffect(()=> {
+    // const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
+    //   flatListRef.current?.scrollToEnd({animated: true});
+      
+    // })
+    // const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
+    //   flatListRef.current?.scrollToEnd({animated: false});
+    // })
+    // setIsKeyboardVisible(!isKeyboardVisible);
+    // return () => {
+
+    //   showSubscription.remove();
+    //   hideSubscription.remove();
+    // }
+
+  },[])
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-800`}>
@@ -338,7 +392,7 @@ const Chats = ({route}) => {
               </Text>
               <Text
                 style={tw`${
-                  typingStatus === 'online' ? 'text-green-500' : 'text-white'
+                  typingStatus === 'online' ? 'text-orange-400' : 'text-white'
                 } text-xs -mt-1`}>
                 {typingStatus}
               </Text>
@@ -379,24 +433,36 @@ const Chats = ({route}) => {
           <FlatList
             ref={flatListRef}
             data={messages}
+            // onContentSizeChange={() => {
+            //   flatListRef.current?.scrollToEnd({animated: true});
+            // }}
+            // onLayout={() => {
+            //   flatListRef.current?.scrollToEnd({animated: true});
+            // }}
+            inverted={true}
+            onEndReachedThreshold={0.1}
+            onEndReached={() => {
+              console.log('End reached');
+            }}
             ListEmptyComponent={
               <Text style={tw`text-white text-lg text-center`}>
                 No messages yet
               </Text>
             }
-            keyExtractor={item => item._id}
+            keyExtractor={item => item?._id || item.id || Math.random().toString(36).substring(7)}
             contentContainerStyle={tw`p-2 pb-20`}
             renderItem={({item}) => (
               <View
                 style={tw`mb-2 p-2  max-w-[80%] ${
                   item.sender === userData.id
-                    ? 'bg-blue-500 self-end rounded-bl-lg rounded-t-lg'
+                    ? 'bg-orange-500 self-end rounded-bl-lg rounded-t-lg'
                     : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
                 }`}>
                 <Text style={tw`text-white`}>{item.content}</Text>
-                {/* <Text>{item.timeStamp.}</Text> */}
+                {/* <Text>{item.timeStamp}</Text> */}
               </View>
             )}
+            // style={tw`h-20`}
           />
         )}
 
@@ -417,7 +483,7 @@ const Chats = ({route}) => {
           <TouchableOpacity
             onPress={handleOnSend}
             style={tw`border-2 border-white p-2 rounded-full`}>
-            <Icon name="send" size={20} color="white" style={tw`rotate-90`} />
+            <Icon name="send" size={20} color="white"  />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

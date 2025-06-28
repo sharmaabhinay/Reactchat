@@ -26,6 +26,8 @@ import {refreshContacts} from '../../redux/user/userData/action';
 var Sound = require('react-native-sound');
 
 const Chats = ({route}) => {
+  // api secret : W51Stmevmz7F0yu5lrGf2jXv_Ug
+  // api key : 832235724692268
   // Sound.setCategory('Playback', true);
   let dispatch = useDispatch();
   const typingSession = useRef(null);
@@ -36,10 +38,11 @@ const Chats = ({route}) => {
   // console.log(route.params?.socket);
 
   const messagesArr = [
-   {
+    {
       __v: 0,
       _id: '681cbbe68ccda579cd52e24b',
-      content: 'https://images.unsplash.com/photo-1750429431308-96eb0e8b6f6f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMnx8fGVufDB8fHx8fA%3D%3D',
+      content:
+        'https://images.unsplash.com/photo-1750429431308-96eb0e8b6f6f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMnx8fGVufDB8fHx8fA%3D%3D',
       read: true,
       content_type: 'image',
       receiver: '6803b7b294c2aa419430d500',
@@ -69,7 +72,8 @@ const Chats = ({route}) => {
     {
       __v: 0,
       _id: '681cbc6b8ccda579cd52e279',
-      content: 'https://plus.unsplash.com/premium_photo-1749668819550-43e7a3712a31?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw2fHx8ZW58MHx8fHx8',
+      content:
+        'https://plus.unsplash.com/premium_photo-1749668819550-43e7a3712a31?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw2fHx8ZW58MHx8fHx8',
       read: true,
       content_type: 'image',
       receiver: '681cbb518ccda579cd52e227',
@@ -89,19 +93,21 @@ const Chats = ({route}) => {
     {
       __v: 0,
       _id: '681cbcdc8ccda579cd52e299',
-      content: 'https://images.unsplash.com/photo-1750692115876-828f4f1b69e4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxM3x8fGVufDB8fHx8fA%3D%3D',
+      content:
+        'https://images.unsplash.com/photo-1750692115876-828f4f1b69e4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxM3x8fGVufDB8fHx8fA%3D%3D',
       read: true,
       content_type: 'image',
       receiver: '681cbb518ccda579cd52e227',
       sender: '6803b7b294c2aa419430d500',
       timestamp: '2025-05-08T14:17:00.617Z',
-    }
+    },
   ];
   const [textValue, setTextValue] = useState('');
   const [typingStatus, setTypingStatus] = useState('');
   const [messages, setMessages] = useState(messagesArr);
   const [loading, setLoading] = useState(false);
-  const [selectImage, setSelectImage] = useState(null);
+  const [isUploading, setIsUploading] = useState(false);
+  const [selectImage, setSelectImage] = useState("");
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
@@ -135,6 +141,66 @@ const Chats = ({route}) => {
   };
 
   //select file
+  let receiveImage = arr => {
+    setIsUploading(true);
+    setSelectImage(arr);
+    setMessages(prevMessages => [
+      {
+        sender: userData.id,
+        receiver: route.params?.userData._id,
+        content: arr,
+        timeStamp: new Date().toISOString(),
+        content_type: 'image',
+        _id: Math.random().toString(36).substring(7), // Generate a random ID for the message
+      },
+      ...prevMessages,
+    ]);
+    console.log('receiveImage called with:', arr);
+    uploadImageToCloudinary(arr);
+  };
+
+  //upload to cloudinary
+  let uploadImageToCloudinary = async imagePath => {
+    setIsUploading(true);
+    const formData = new FormData();
+    formData.append('file', {
+      uri: imagePath,
+      type: 'image/jpeg', // Adjust the type based on your image format
+      name: 'image.jpg',
+    });
+    formData.append('upload_preset', 'Reactchat'); // 🔥 move outside file object
+    formData.append('cloud_name', 'dpybzn1oa');
+
+    try {
+      const response = await axios.post(
+        'https://api.cloudinary.com/v1_1/dpybzn1oa/image/upload',
+        formData,
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      );
+      setIsUploading(false);
+      if (response) {
+        // console.log('Image uploaded successfully:', response.data.url);
+        // Emit the message to the server
+        if (socket) {
+          socket.emit('client-message', {
+            senderId: userData.id,
+            receiverId: route.params?.userData._id,
+            content: response.data.url,
+            content_type: 'image',
+          });
+          getcontacts();
+        }
+      }
+      console.log('Image uploaded successfully:', response.data.url);
+    } catch (error) {
+      setIsUploading(false);
+      console.error('Error uploading image:', error);
+    }
+  };
   const selectfiles = async () => {
     try {
       await ImagePicker.openPicker({
@@ -147,6 +213,7 @@ const Chats = ({route}) => {
           imageUri: image,
           sender: userData.id,
           receiver: route.params?.userData,
+          receiveImage: receiveImage,
           // socket: route.params?.socket,
         });
       });
@@ -238,7 +305,7 @@ const Chats = ({route}) => {
   };
   useEffect(() => {
     setTypingStatus(route.params?.userData?.isOnline ? 'online' : 'offline');
-    // fetchMessages();
+    fetchMessages();
   }, []);
   // useEffect(() => {
   //   if (flatListRef.current && messages.length > 0) {
@@ -260,6 +327,7 @@ const Chats = ({route}) => {
     }
   };
 
+  //send message to server
   const handleOnSend = () => {
     if (socket) {
       setTextValue('');
@@ -296,10 +364,6 @@ const Chats = ({route}) => {
     //   hideSubscription.remove();
     // }
   }, []);
-  let temMessage = [
-    
-    
-  ];
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-800`}>
@@ -393,10 +457,23 @@ const Chats = ({route}) => {
                     ? 'bg-orange-500 self-end rounded-bl-lg rounded-t-lg'
                     : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
                 }`}>
-                {item?.content_type === 'text' ? (
-                  <Text style={tw`text-white`}>{item.content}</Text>
+                {item?.content_type === 'image' ? (
+                  <View>
+                    <Image
+                      source={{uri: item.content}}
+                      style={tw`w-60 h-60`}
+                      blurRadius={isUploading && item.content === selectImage ? 15 : 0}
+                    />
+                    <ActivityIndicator
+                      size={45}
+                      color="white"
+                      style={tw`absolute top-[43%] left-[45%] ${
+                        isUploading && item.content === selectImage ? null : 'hidden'
+                      }`}
+                    />
+                  </View>
                 ) : (
-                  <Image source={{uri: item.content}} style={tw`w-60 h-60`} />
+                  <Text style={tw`text-white`}>{item.content}</Text>
                 )}
                 {/* <Text style={tw`text-white`}>{item.content}</Text> */}
                 {/* <Text>{item.timeStamp}</Text> */}
@@ -415,7 +492,6 @@ const Chats = ({route}) => {
             <Icon name="attach-file" size={20} color="white" style={tw``} />
           </TouchableOpacity>
           <TextInput
-            
             placeholder="Type a message"
             onChangeText={setTextValue}
             value={textValue}

@@ -5,27 +5,43 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import axios from 'axios';
 
 const File = ({route, navigation}) => {
-  const {imageUri, sender, receiver} = route.params || {};
+  const {imageUri, sender, receiver, receiveImage} = route.params || {};
+  // let newImageData = {
+  //   content: imageUri.path
 
-//   const uploadImage = async () => {
-//     const formData = new FormData();
-//     formData.append('file', {
-//       uri: imageUri.path,
-//       type: 'image/jpeg', // Adjust the type based on your image format
-//       name: 'image.jpg',
-//       upload_preset:'Reactchat',
-//       cloud_name:"dpybzn1oa" // You can change the name as needed
-//     });
+  // }
+  const uploadImage = async () => {
 
-//     try{
-//         const response = await axios.post(
-//           'https://api.cloudinary.com/v1_1/dpybzn1oa/image/upload',formData);
-//         console.log('Image uploaded successfully:', response.data);
+    
+    // const formData = new FormData();
+    // formData.append('file', {
+    //   uri: imageUri.path,
+    //   type: 'image/jpeg', // Adjust the type based on your image format
+    //   name: 'image.jpg',
+    // });
+    // formData.append('upload_preset', 'Reactchat'); // 🔥 move outside file object
+    // formData.append('cloud_name', 'dpybzn1oa'); 
 
-//     }catch(error){
-//         console.error('Error uploading image:', error);
-//     }
-//   }
+    // try {
+    //   const response = await axios.post(
+    //   'https://api.cloudinary.com/v1_1/dpybzn1oa/image/upload',
+    //   formData,
+    //   {
+    //     headers: {
+    //       'Content-Type': 'multipart/form-data',
+    //     },
+    //   }
+    // );
+    //   receiveImage(imageUri.path)
+    //   navigation.goBack()
+    //   console.log('Image uploaded successfully:', response.data.url);
+    // } catch (error) {
+    //   console.error('Error uploading image:', error);
+    // }
+    receiveImage(imageUri.path)
+    navigation.goBack()
+  };
+  
 
   return (
     <View style={tw`flex-1 bg-gray-900 justify-center items-center`}>
@@ -42,8 +58,8 @@ const File = ({route, navigation}) => {
           </View>
           <Image
             source={{uri: imageUri.path}}
-            style={tw`w-[100%] h-64 rounded-lg mb-6`}
-            resizeMode="cover"
+            style={tw`w-[100%] h-[80%] rounded-lg mb-6`}
+            resizeMode="contain"
           />
           {/* <Text style={tw`text-lg font-bold mb-4`}>Image Selected</Text> */}
           {/* <TouchableOpacity
@@ -58,7 +74,7 @@ const File = ({route, navigation}) => {
             </TouchableOpacity>
             <TouchableOpacity
               style={tw`bg-orange-600  items-center px-6 py-2 rounded-full`}
-              onPress={() => navigation.goBack()}>
+              onPress={uploadImage}>
               <Icon name="send" size={24} color="white" />
             </TouchableOpacity>
           </View>

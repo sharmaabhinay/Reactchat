@@ -5,6 +5,7 @@ import Chats from '../../screens/home/Chats';
 import VoiceCallScreen from '../../screens/home/client/Voice';
 import VideoChat from '../../screens/home/client/VideoChat';
 import FriendDetails from '../../screens/home/client/Info';
+import File from '../../screens/home/selectedfiles/File';
 const Stack = createNativeStackNavigator();
 
 const ChatStack = ({navigation, route}) => {
@@ -15,6 +16,7 @@ const ChatStack = ({navigation, route}) => {
         <Stack.Screen name="VoiceChat" component={VoiceCallScreen} options={{headerShown:false}}/>
         <Stack.Screen name="VideoChat" component={VideoChat} options={{headerShown:false}}/>
         <Stack.Screen name="Info" component={FriendDetails} options={{headerShown:false}}/>
+        <Stack.Screen name="selectfile" component={File} options={{headerShown:false}}/>
     </Stack.Navigator>
   )
 }

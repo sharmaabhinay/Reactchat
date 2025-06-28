@@ -13,6 +13,8 @@ import {
   Keyboard,
 } from 'react-native';
 import tw from 'twrnc';
+import ImagePicker from 'react-native-image-crop-picker';
+
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import {SafeAreaView} from 'react-native-safe-area-context';
 import {useNavigation} from '@react-navigation/native';
@@ -21,6 +23,7 @@ import {useDispatch, useSelector} from 'react-redux';
 import BackendUrl from '../../components/BackendUrl';
 import {refreshContacts} from '../../redux/user/userData/action';
 // import Sound from 'react-native-sound';
+var Sound = require('react-native-sound');
 
 const Chats = ({route}) => {
   // Sound.setCategory('Playback', true);
@@ -33,203 +36,131 @@ const Chats = ({route}) => {
   // console.log(route.params?.socket);
 
   const messagesArr = [
-    {
-      id: '1',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Hey, how are you?',
-      sendTime: '10:00 AM',
+   {
+      __v: 0,
+      _id: '681cbbe68ccda579cd52e24b',
+      content: 'https://images.unsplash.com/photo-1750429431308-96eb0e8b6f6f?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxMnx8fGVufDB8fHx8fA%3D%3D',
+      read: true,
+      content_type: 'image',
+      receiver: '6803b7b294c2aa419430d500',
+      sender: '681cbb518ccda579cd52e227',
+      timestamp: '2025-05-08T14:12:54.269Z',
     },
     {
-      id: '2',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'I am good, what about you?',
-      sendTime: '10:01 AM',
+      __v: 0,
+      _id: '681cbc028ccda579cd52e25d',
+      content: 'hello',
+      read: true,
+      content_type: 'text',
+      receiver: '681cbb518ccda579cd52e227',
+      sender: '6803b7b294c2aa419430d500',
+      timestamp: '2025-05-08T14:13:22.968Z',
     },
     {
-      id: '3',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Doing great, thanks!',
-      sendTime: '10:02 AM',
+      __v: 0,
+      _id: '681cbc358ccda579cd52e26b',
+      content: 'wassup?',
+      read: true,
+      content_type: 'text',
+      receiver: '6803b7b294c2aa419430d500',
+      sender: '681cbb518ccda579cd52e227',
+      timestamp: '2025-05-08T14:14:13.168Z',
     },
     {
-      id: '4',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'What are you up to?',
-      sendTime: '10:03 AM',
+      __v: 0,
+      _id: '681cbc6b8ccda579cd52e279',
+      content: 'https://plus.unsplash.com/premium_photo-1749668819550-43e7a3712a31?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHw2fHx8ZW58MHx8fHx8',
+      read: true,
+      content_type: 'image',
+      receiver: '681cbb518ccda579cd52e227',
+      sender: '6803b7b294c2aa419430d500',
+      timestamp: '2025-05-08T14:15:07.468Z',
     },
     {
-      id: '5',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Just working on a project.',
-      sendTime: '10:04 AM',
+      __v: 0,
+      _id: '681cbccb8ccda579cd52e28a',
+      content: '??',
+      read: true,
+      content_type: 'text',
+      receiver: '681cbb518ccda579cd52e227',
+      sender: '6803b7b294c2aa419430d500',
+      timestamp: '2025-05-08T14:16:43.608Z',
     },
     {
-      id: '6',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'That sounds interesting!',
-      sendTime: '10:05 AM',
-    },
-    {
-      id: '7',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Yeah, it’s been fun so far.',
-      sendTime: '10:06 AM',
-    },
-    {
-      id: '8',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Let me know if you need help.',
-      sendTime: '10:07 AM',
-    },
-    {
-      id: '9',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Sure, thanks!',
-      sendTime: '10:08 AM',
-    },
-    {
-      id: '10',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'What’s the project about?',
-      sendTime: '10:09 AM',
-    },
-    {
-      id: '11',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'It’s a chat application.',
-      sendTime: '10:10 AM',
-    },
-    {
-      id: '12',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Oh, that’s cool!',
-      sendTime: '10:11 AM',
-    },
-    {
-      id: '13',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Thanks! It’s almost done.',
-      sendTime: '10:12 AM',
-    },
-    {
-      id: '14',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Can’t wait to see it.',
-      sendTime: '10:13 AM',
-    },
-    {
-      id: '15',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'I’ll send you the link soon.',
-      sendTime: '10:14 AM',
-    },
-    {
-      id: '16',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Great! Looking forward to it.',
-      sendTime: '10:15 AM',
-    },
-    {
-      id: '17',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'What about you? What are you working on?',
-      sendTime: '10:16 AM',
-    },
-    {
-      id: '18',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Just some design work.',
-      sendTime: '10:17 AM',
-    },
-    {
-      id: '19',
-      name: 'John Doe',
-      sentBy: 'John',
-      receivedBy: 'Jane',
-      text: 'Nice! Let me know if you need feedback.',
-      sendTime: '10:18 AM',
-    },
-    {
-      id: '20',
-      name: 'Jane Smith',
-      sentBy: 'Jane',
-      receivedBy: 'John',
-      text: 'Will do, thanks!',
-      sendTime: '10:19 AM',
-    },
+      __v: 0,
+      _id: '681cbcdc8ccda579cd52e299',
+      content: 'https://images.unsplash.com/photo-1750692115876-828f4f1b69e4?w=600&auto=format&fit=crop&q=60&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxmZWF0dXJlZC1waG90b3MtZmVlZHwxM3x8fGVufDB8fHx8fA%3D%3D',
+      read: true,
+      content_type: 'image',
+      receiver: '681cbb518ccda579cd52e227',
+      sender: '6803b7b294c2aa419430d500',
+      timestamp: '2025-05-08T14:17:00.617Z',
+    }
   ];
   const [textValue, setTextValue] = useState('');
   const [typingStatus, setTypingStatus] = useState('');
   const [messages, setMessages] = useState(messagesArr);
   const [loading, setLoading] = useState(false);
+  const [selectImage, setSelectImage] = useState(null);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
   let socket = route.params?.socket;
 
+  var whoosh = new Sound('notification.mp3', Sound.MAIN_BUNDLE, error => {
+    if (error) {
+      console.log('failed to load the sound', error);
+      return;
+    }
+    // loaded successfully
+    console.log(
+      'duration in seconds: ' +
+        whoosh.getDuration() +
+        'number of channels: ' +
+        whoosh.getNumberOfChannels(),
+    );
 
-  // play sound on new message
-  // const playSound = ()=> {
-  //   const sound = new Sound("notification", Sound.MAIN_BUNDLE , (error) => {
-  //     if (error) {
-  //       console.log('Failed to load sound', error);
-  //     } else {
-  //       sound.play(success => {
-  //         if (success) {
-  //           console.log('Sound played successfully');
-  //         } else {
-  //           console.log('Sound playback failed');
-  //         }
-  //       });
-  //     }
-  //   })
-  // }
-  // useEffect(() => {
-  //   playSound();
-  // }, []);
+    // Play the sound with an onEnd callback
+  });
 
-  //receiving messages from socket
+  //play notification sound
+  const playSound = () => {
+    whoosh.play(success => {
+      if (success) {
+        console.log('successfully finished playing');
+      } else {
+        console.log('playback failed due to audio decoding errors');
+      }
+    });
+  };
+
+  //select file
+  const selectfiles = async () => {
+    try {
+      await ImagePicker.openPicker({
+        width: 300,
+        height: 400,
+        cropping: false,
+      }).then(image => {
+        console.log(image);
+        navigation.navigate('selectfile', {
+          imageUri: image,
+          sender: userData.id,
+          receiver: route.params?.userData,
+          // socket: route.params?.socket,
+        });
+      });
+    } catch (error) {
+      console.log('error : ', error);
+    }
+  };
+
   useEffect(() => {
     if (socket) {
       const handleNewMessage = message => {
         console.log('New message:', message);
-        setMessages(prevMessages => [ message,...prevMessages]);
+        setMessages(prevMessages => [message, ...prevMessages]);
+        playSound();
       };
 
       // Register the 'new-message' listener
@@ -241,11 +172,11 @@ const Chats = ({route}) => {
       };
     }
   }, [socket]);
-  
+
   useEffect(() => {
     if (socket) {
       socket.on('leave', data => {
-        if(data.userId === route.params?.userId?._id){
+        if (data.userId === route.params?.userId?._id) {
           setTypingStatus('offline');
         }
       });
@@ -307,7 +238,7 @@ const Chats = ({route}) => {
   };
   useEffect(() => {
     setTypingStatus(route.params?.userData?.isOnline ? 'online' : 'offline');
-    fetchMessages();
+    // fetchMessages();
   }, []);
   // useEffect(() => {
   //   if (flatListRef.current && messages.length > 0) {
@@ -333,40 +264,42 @@ const Chats = ({route}) => {
     if (socket) {
       setTextValue('');
       setMessages(prevMessages => [
-        
         {
           sender: userData.id,
           receiver: route.params?.userData._id,
           content: textValue,
           timeStamp: new Date().toISOString(),
           _id: Math.random().toString(36).substring(7), // Generate a random ID for the message
-        },...prevMessages
+        },
+        ...prevMessages,
       ]);
       socket.emit('client-message', {
         senderId: userData.id,
         receiverId: route.params?.userData._id,
         content: textValue,
+        content_type: 'text',
       });
       getcontacts();
     }
   };
 
-  useEffect(()=> {
+  useEffect(() => {
     // const showSubscription = Keyboard.addListener('keyboardDidShow', () => {
     //   flatListRef.current?.scrollToEnd({animated: true});
-      
     // })
     // const hideSubscription = Keyboard.addListener('keyboardDidHide', () => {
     //   flatListRef.current?.scrollToEnd({animated: false});
     // })
     // setIsKeyboardVisible(!isKeyboardVisible);
     // return () => {
-
     //   showSubscription.remove();
     //   hideSubscription.remove();
     // }
-
-  },[])
+  }, []);
+  let temMessage = [
+    
+    
+  ];
 
   return (
     <SafeAreaView style={tw`flex-1 bg-gray-800`}>
@@ -449,7 +382,9 @@ const Chats = ({route}) => {
                 No messages yet
               </Text>
             }
-            keyExtractor={item => item?._id || item.id || Math.random().toString(36).substring(7)}
+            keyExtractor={item =>
+              item?._id || item.id || Math.random().toString(36).substring(7)
+            }
             contentContainerStyle={tw`p-2 pb-20`}
             renderItem={({item}) => (
               <View
@@ -458,7 +393,12 @@ const Chats = ({route}) => {
                     ? 'bg-orange-500 self-end rounded-bl-lg rounded-t-lg'
                     : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
                 }`}>
-                <Text style={tw`text-white`}>{item.content}</Text>
+                {item?.content_type === 'text' ? (
+                  <Text style={tw`text-white`}>{item.content}</Text>
+                ) : (
+                  <Image source={{uri: item.content}} style={tw`w-60 h-60`} />
+                )}
+                {/* <Text style={tw`text-white`}>{item.content}</Text> */}
                 {/* <Text>{item.timeStamp}</Text> */}
               </View>
             )}
@@ -469,11 +409,13 @@ const Chats = ({route}) => {
         {/* Bottom input bar */}
         <View
           style={tw`bottom-0 left-0 right-0 bg-gray-800 p-3 flex-row items-center justify-around gap-2`}>
-          <TouchableOpacity style={tw` border-2 border-white p-2 rounded-full`}>
+          <TouchableOpacity
+            style={tw` border-2 border-white p-2 rounded-full`}
+            onPress={selectfiles}>
             <Icon name="attach-file" size={20} color="white" style={tw``} />
           </TouchableOpacity>
           <TextInput
-            autoFocus
+            
             placeholder="Type a message"
             onChangeText={setTextValue}
             value={textValue}
@@ -483,7 +425,7 @@ const Chats = ({route}) => {
           <TouchableOpacity
             onPress={handleOnSend}
             style={tw`border-2 border-white p-2 rounded-full`}>
-            <Icon name="send" size={20} color="white"  />
+            <Icon name="send" size={20} color="white" />
           </TouchableOpacity>
         </View>
       </KeyboardAvoidingView>

@@ -1,0 +1,94 @@
+Folder PATH listing for volume New Volume
+Volume serial number is 44DE-586F
+D:.
+|   bg.jpg.webp
+|   structure.txt
+|   
++---assets
+|   |   1743162456.jpg
+|   |   wp8151110.jpg
+|   |   
+|   +---audio
+|   |       notification.mp3
+|   |       
+|   +---fonts
+|   |   |   CedarvilleCursive-Regular.ttf
+|   |   |   CrimsonText-Bold.ttf
+|   |   |   CrimsonText-BoldItalic.ttf
+|   |   |   CrimsonText-Italic.ttf
+|   |   |   CrimsonText-Regular.ttf
+|   |   |   CrimsonText-SemiBold.ttf
+|   |   |   CrimsonText-SemiBoldItalic.ttf
+|   |   |   OFL.txt
+|   |   |   temp.ttf
+|   |   |   
+|   |   \---Cedarville_Cursive
+|   |           OFL.txt
+|   |           
+|   \---images
+|           login.png
+|           logo.png
+|           signup.png
+|           
++---components
+|   |   BackendUrl.jsx
+|   |   BottomTabNavigator.jsx
+|   |   Contacts.jsx
+|   |   RootComponent.jsx
+|   |   Socket.jsx
+|   |   
+|   +---chatStack
+|   |       ChatStack.jsx
+|   |       
+|   +---homeStack
+|   |       HomeStack.jsx
+|   |       
+|   \---profileStack
++---redux
+|   |   rootReducer.js
+|   |   store.js
+|   |   
+|   +---socket
+|   |       action.js
+|   |       reducer.js
+|   |       
+|   +---temp
+|   |       action.js
+|   |       reducer.js
+|   |       
+|   \---user
+|       +---currentFriend
+|       |       action.js
+|       |       reducer.js
+|       |       
+|       +---userAuth
+|       |       action.js
+|       |       reducer.js
+|       |       
+|       \---userData
+|               action.js
+|               constant.js
+|               reducer.js
+|               
+\---screens
+    |   CreateProfile.jsx
+    |   Home.jsx
+    |   Signin.jsx
+    |   Signup.jsx
+    |   
+    +---home
+    |   |   AddContact.jsx
+    |   |   Chats.jsx
+    |   |   ConnectedContact.jsx
+    |   |   
+    |   +---client
+    |   |       Info.jsx
+    |   |       VideoChat.jsx
+    |   |       Voice.jsx
+    |   |       
+    |   \---selectedfiles
+    |           File.jsx
+    |           
+    \---profile
+            Profile.jsx
+            

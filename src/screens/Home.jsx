@@ -187,7 +187,7 @@ const Home = () => {
                     {item?.name || 'emiwayy'}
                   </Text>
                   <Text style={tw`text-gray-400`}>
-                    {item?.last_message || 'new message'}
+                    {item?.last_message}
                   </Text>
                 </View>
               </View>

@@ -29,8 +29,8 @@ const BottomTabNavigator = () => {
           tabBarIcon: ({color, size}) => (
             <Icon name="home" color={color} size={size || 24} />
           ),
-          tabBarBadge: 3,
-          tabBarBadgeStyle: {backgroundColor: 'purple'},
+          // tabBarBadge: 3,
+          // tabBarBadgeStyle: {backgroundColor: 'purple'},
         }}
       />
       <Tab.Screen

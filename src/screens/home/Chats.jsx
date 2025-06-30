@@ -11,19 +11,35 @@ import {
   Pressable,
   ActivityIndicator,
   Keyboard,
+  // Modal,
 } from 'react-native';
+
+//import external libraries
 import tw from 'twrnc';
 import ImagePicker from 'react-native-image-crop-picker';
-
+import ImageView from 'react-native-image-viewing';
+import ImageViewer from 'react-native-image-zoom-viewer';
+import Modal from 'react-native-modal';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import {SafeAreaView} from 'react-native-safe-area-context';
-import {useNavigation} from '@react-navigation/native';
 import axios from 'axios';
+import {useNavigation} from '@react-navigation/native';
 import {useDispatch, useSelector} from 'react-redux';
+import {SafeAreaView} from 'react-native-safe-area-context';
+
+//import components
 import BackendUrl from '../../components/BackendUrl';
 import {refreshContacts} from '../../redux/user/userData/action';
+
 // import Sound from 'react-native-sound';
 var Sound = require('react-native-sound');
+
+const PreviewIkmage = uri => {
+  return (
+    <View style={tw`flex-1 bg-gray-900 justify-center items-center`}>
+      <Text style={tw`text-white text-lg font-bold`}>Image Preview</Text>
+    </View>
+  );
+};
 
 const Chats = ({route}) => {
   // api secret : W51Stmevmz7F0yu5lrGf2jXv_Ug
@@ -106,13 +122,18 @@ const Chats = ({route}) => {
   const [typingStatus, setTypingStatus] = useState('');
   const [messages, setMessages] = useState(messagesArr);
   const [loading, setLoading] = useState(false);
+  const [imagePreviewVisible, setImagePreviewVisible] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
-  const [selectImage, setSelectImage] = useState("");
+  const [selectPrevieImage, setSelectPreviewImage] = useState(null);
+  const [selectImage, setSelectImage] = useState('');
+  const [menuVisible, setMenuVisible] = useState(false);
   const [isKeyboardVisible, setIsKeyboardVisible] = useState(false);
   const [typing, setTyping] = useState(false);
   const flatListRef = useRef(null);
   let socket = route.params?.socket;
-
+  // const images = [
+  //     { url: 'https://placekitten.com/800/800' }, // must be full URL or file path
+  //   ];
   var whoosh = new Sound('notification.mp3', Sound.MAIN_BUNDLE, error => {
     if (error) {
       console.log('failed to load the sound', error);
@@ -139,10 +160,19 @@ const Chats = ({route}) => {
       }
     });
   };
+  const images = [
+    {
+      uri: 'https://images.unsplash.com/photo-1571501679680-de32f1e7aad4',
+    },
+  ];
+
+  //show image modal
+  const uploadIcon = () => {};
 
   //select file
   let receiveImage = arr => {
     setIsUploading(true);
+    setMenuVisible(false);
     setSelectImage(arr);
     setMessages(prevMessages => [
       {
@@ -201,7 +231,7 @@ const Chats = ({route}) => {
       console.error('Error uploading image:', error);
     }
   };
-  const selectfiles = async () => {
+  const pickImage = async () => {
     try {
       await ImagePicker.openPicker({
         width: 300,
@@ -221,6 +251,23 @@ const Chats = ({route}) => {
       console.log('error : ', error);
     }
   };
+
+  //open camera
+  const openCamera = async () => {
+    try {
+      const image = await ImagePicker.openCamera({
+        width: 300,
+        height: 400,
+        cropping: false,
+      }).then(image => {
+        receiveImage(image.path);
+      });
+    } catch (error) {
+      console.log('error : ', error);
+    }
+  };
+
+  const PreviewImage = image => {};
 
   useEffect(() => {
     if (socket) {
@@ -306,6 +353,7 @@ const Chats = ({route}) => {
   useEffect(() => {
     setTypingStatus(route.params?.userData?.isOnline ? 'online' : 'offline');
     fetchMessages();
+    setMenuVisible(false);
   }, []);
   // useEffect(() => {
   //   if (flatListRef.current && messages.length > 0) {
@@ -373,16 +421,61 @@ const Chats = ({route}) => {
         keyboardVerticalOffset={Platform.OS === 'ios' ? 100 : 0}
         // behavior="height"
       >
-        <View style={tw`bg-gray-900 p-2 flex-row justify-between items-center`}>
+        {/* Image Preview Modal */}
+        <ImageView
+          images={[{uri: selectPrevieImage}]}
+          onRequestClose={() => {
+            setImagePreviewVisible(false);
+          }}
+          imageIndex={0}
+          visible={imagePreviewVisible}
+        />
+
+        <Modal
+          isVisible={menuVisible}
+          animationIn={'slideInLeft'}
+          animationOut={'slideOutRight'}
+          onBackdropPress={() => setMenuVisible(false)}
+          backdropOpacity={0.1}>
+          <View style={{flex: 1}}>
+            <View style={tw`flex-1 gap-2 flex-col justify-end mb-12`}>
+              <View style={tw`flex-col justify-around bg-white w-8 rounded-md`}>
+                <TouchableOpacity onPress={pickImage}>
+                  <Icon name="image" size={30} color="green" />
+                </TouchableOpacity>
+                <TouchableOpacity onPress={openCamera}>
+                  <Icon name="camera-alt" size={30} color="gray" />
+                </TouchableOpacity>
+              </View>
+              <View style={tw`bg-white w-8 rounded-md`}>
+                <Icon
+                  name="close"
+                  size={30}
+                  color="black"
+                  onPress={() => setMenuVisible(false)}
+                />
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+        <View style={tw`bg-gray-900 p-4 flex-row justify-between items-center`}>
           <View style={tw`flex-row items-center gap-4`}>
-            <Image
-              source={{
-                uri:
-                  route.params?.userData?.profile_pic ||
-                  'https://www.das-macht-schule.net/wp-content/uploads/2018/04/dummy-profile-pic.png',
-              }}
-              style={tw`w-12 h-12 rounded-full`}
-            />
+            <TouchableOpacity
+              onPress={() => {
+                setSelectPreviewImage(route.params?.userData?.profile_pic);
+                setImagePreviewVisible(true);
+              }}>
+              <Image
+                source={{
+                  uri:
+                    route.params?.userData?.profile_pic ||
+                    'https://www.das-macht-schule.net/wp-content/uploads/2018/04/dummy-profile-pic.png',
+                }}
+                style={tw`w-12 h-12 rounded-full`}
+              />
+            </TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('Info', {userData: route.params?.userData})}>
             <View>
               <Text style={tw`text-white font-bold text-lg`}>
                 {route.params?.userData?.name || 'Dummy'}
@@ -394,6 +487,7 @@ const Chats = ({route}) => {
                 {typingStatus}
               </Text>
             </View>
+            </TouchableOpacity>
           </View>
           <View style={tw`flex-row gap-3`}>
             <Pressable
@@ -458,20 +552,29 @@ const Chats = ({route}) => {
                     : 'bg-gray-700 self-start rounded-b-lg rounded-tr-lg'
                 }`}>
                 {item?.content_type === 'image' ? (
-                  <View>
+                  <TouchableOpacity
+                  onLongPress={() => alert('Long Pressed')}
+                    onPress={() => {
+                      setSelectPreviewImage(item.content);
+                      setImagePreviewVisible(true);
+                    }}>
                     <Image
-                      source={{uri: item.content}}
+                      source={{uri: item.content || 'https://ehelperteam.com/wp-content/uploads/2019/09/Broken-images.png'}}
                       style={tw`w-60 h-60`}
-                      blurRadius={isUploading && item.content === selectImage ? 15 : 0}
+                      blurRadius={
+                        isUploading && item.content === selectImage ? 15 : 0
+                      }
                     />
                     <ActivityIndicator
                       size={45}
                       color="white"
                       style={tw`absolute top-[43%] left-[45%] ${
-                        isUploading && item.content === selectImage ? null : 'hidden'
+                        isUploading && item.content === selectImage
+                          ? null
+                          : 'hidden'
                       }`}
                     />
-                  </View>
+                  </TouchableOpacity>
                 ) : (
                   <Text style={tw`text-white`}>{item.content}</Text>
                 )}
@@ -488,8 +591,8 @@ const Chats = ({route}) => {
           style={tw`bottom-0 left-0 right-0 bg-gray-800 p-3 flex-row items-center justify-around gap-2`}>
           <TouchableOpacity
             style={tw` border-2 border-white p-2 rounded-full`}
-            onPress={selectfiles}>
-            <Icon name="attach-file" size={20} color="white" style={tw``} />
+            onPress={() => setMenuVisible(true)}>
+            <Icon name="add" size={20} color="white" style={tw``} />
           </TouchableOpacity>
           <TextInput
             placeholder="Type a message"
